@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: desafio2-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: desafio2_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: senha123
+    restart: unless-stopped
+
+  reader:
+    image: postgres:15-alpine
+    container_name: desafio2-reader
+    depends_on:
+      - postgres
+    environment:
+      PGHOST: postgres
+      PGDATABASE: desafio2_db
+      PGUSER: admin
+      PGPASSWORD: senha123
+    command: >
+      sh -c "
+        echo 'Aguardando banco de dados...' &&
+        sleep 5 &&
+        echo '=== CONSULTANDO USUÁRIOS ===' &&
+        psql -c 'SELECT * FROM usuarios;' &&
+        echo '' &&
+        echo '=== CONSULTANDO PRODUTOS ===' &&
+        psql -c 'SELECT * FROM produtos;'
+      "
+    restart: "no"
+
+volumes:
+  postgres_data:
+    driver: local
+    name: desafio2_postgres_data
+
+

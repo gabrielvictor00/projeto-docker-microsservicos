@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidor Web - Desafio 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .timestamp {
+            font-size: 0.9em;
+            color: #f0f0f0;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Servidor Web Docker</h1>
+        <div class="info">
+            <strong>Status:</strong> Online e funcionando!
+        </div>
+        <div class="info">
+            <strong>Porta:</strong> 8080
+        </div>
+        <div class="info">
+            <strong>Rede:</strong> Docker Network Customizada
+        </div>
+        <div class="info">
+            <strong>Descrição:</strong> Este servidor está sendo acessado por um container cliente através de uma rede Docker customizada.
+        </div>
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+    <script>
+        document.getElementById('timestamp').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
+    </script>
+</body>
+</html>
+
+

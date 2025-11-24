@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  users-service:
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+    container_name: desafio5-users
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  orders-service:
+    build:
+      context: ./orders-service
+      dockerfile: Dockerfile
+    container_name: desafio5-orders
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: desafio5-gateway
+    environment:
+      USERS_SERVICE_URL: http://users-service:8001
+      ORDERS_SERVICE_URL: http://orders-service:8002
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    depends_on:
+      - users-service
+      - orders-service
+    restart: unless-stopped
+
+networks:
+  microservices-network:
+    driver: bridge
+    name: desafio5-network
+

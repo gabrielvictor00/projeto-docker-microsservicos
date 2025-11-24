@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  users-service:
+    build:
+      context: ./users-service
+      dockerfile: Dockerfile
+    container_name: desafio4-users
+    ports:
+      - "8001:8001"
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  aggregator-service:
+    build:
+      context: ./aggregator-service
+      dockerfile: Dockerfile
+    container_name: desafio4-aggregator
+    environment:
+      USERS_SERVICE_URL: http://users-service:8001
+    ports:
+      - "8002:8002"
+    networks:
+      - microservices-network
+    depends_on:
+      - users-service
+    restart: unless-stopped
+
+networks:
+  microservices-network:
+    driver: bridge
+    name: desafio4-network
+
+
