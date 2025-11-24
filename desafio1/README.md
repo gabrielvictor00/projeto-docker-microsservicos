@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este desafio demonstra a comunicação entre dois containers Docker através de uma rede customizada. Um container executa um servidor web Nginx na porta 8080, enquanto outro container realiza requisições HTTP periódicas para o servidor.
+Este desafio implementa dois containers Docker que se comunicam através de uma rede customizada. A solução consiste em um servidor web Nginx rodando na porta 8080 e um container cliente que realiza requisições HTTP periódicas para demonstrar a comunicação entre containers.
 
 ## Arquitetura
 
@@ -28,10 +28,12 @@ Este desafio demonstra a comunicação entre dois containers Docker através de 
 
 ## Decisões Técnicas
 
-- **Nginx Alpine**: Imagem leve e eficiente para o servidor web
-- **Alpine Linux**: Base mínima para o container cliente
-- **Bridge Network**: Tipo de rede padrão que permite comunicação entre containers na mesma rede
-- **Docker Compose**: Facilita a orquestração e gerenciamento dos containers
+Para este desafio, escolhi as seguintes tecnologias:
+
+- **Nginx Alpine**: Escolhi esta imagem por ser leve e eficiente para servir conteúdo estático. A versão Alpine reduz significativamente o tamanho da imagem final.
+- **Alpine Linux**: Usei Alpine como base para o container cliente por ser uma distribuição mínima, ideal para containers que precisam apenas de ferramentas básicas como curl.
+- **Bridge Network**: Utilizei uma rede do tipo bridge, que é o padrão do Docker. Esta rede permite que containers na mesma rede se comuniquem usando seus nomes como hostnames, facilitando a descoberta de serviços.
+- **Docker Compose**: Optei por usar Docker Compose para facilitar a orquestração dos containers e a criação da rede customizada de forma declarativa.
 
 ## Funcionamento
 
@@ -147,23 +149,24 @@ desafio1/
 
 ### Dockerfile.server
 
-Cria uma imagem baseada no Nginx Alpine, copia a página HTML e a configuração do Nginx, e expõe a porta 8080.
+Este Dockerfile cria a imagem do servidor web. Ele parte da imagem base `nginx:alpine`, que já contém o servidor Nginx configurado. O arquivo copia a página HTML (`index.html`) para o diretório padrão do Nginx e também copia uma configuração customizada (`nginx.conf`) que define o servidor para escutar na porta 8080 ao invés da porta padrão 80. A porta 8080 é exposta para permitir acesso externo.
 
 ### Dockerfile.client
 
-Cria uma imagem Alpine com curl instalado, copia o script de requisições e o torna executável.
+O Dockerfile do cliente cria uma imagem mínima baseada em Alpine Linux. Instala o `curl` através do gerenciador de pacotes `apk`, copia o script `client.sh` que contém o loop de requisições HTTP, e torna o script executável. Este container não precisa expor portas, pois apenas faz requisições de saída.
 
 ### docker-compose.yml
 
-Define dois serviços:
-- `web-server`: Servidor web na porta 8080
-- `client`: Cliente que faz requisições periódicas
+O arquivo docker-compose.yml define a orquestração completa:
+- **web-server**: Serviço que constrói a imagem do servidor e mapeia a porta 8080 do host para a porta 8080 do container
+- **client**: Serviço que constrói a imagem do cliente e depende do web-server estar rodando
+- **custom-network**: Define uma rede do tipo bridge nomeada `desafio1-network`, onde ambos os containers se conectam
 
-Ambos os serviços estão conectados à rede `custom-network` (tipo bridge).
+A rede customizada permite que os containers se comuniquem usando o nome do serviço como hostname. Por isso, o cliente pode acessar o servidor usando `http://web-server:8080`.
 
 ### Comunicação via DNS Interno
 
-O Docker fornece um DNS interno que resolve os nomes dos serviços para seus IPs na rede. Por isso, o cliente pode acessar `http://web-server:8080` sem precisar saber o IP do container.
+Uma das funcionalidades mais úteis do Docker é o DNS interno. Quando containers estão na mesma rede, o Docker automaticamente resolve os nomes dos serviços (definidos no docker-compose.yml) para seus endereços IP. Isso significa que o container cliente pode acessar o servidor usando simplesmente `http://web-server:8080`, sem precisar descobrir ou hardcodar o IP do container servidor. O Docker gerencia isso automaticamente.
 
 ## Resultados Esperados
 

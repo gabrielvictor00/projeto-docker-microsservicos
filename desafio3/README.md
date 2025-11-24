@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este desafio demonstra a orquestração de múltiplos serviços usando Docker Compose. A aplicação consiste em três serviços interdependentes: uma aplicação web Flask, um banco de dados PostgreSQL e um cache Redis.
+Este desafio implementa uma aplicação completa orquestrada com Docker Compose, composta por três serviços interdependentes: uma API web em Flask, um banco de dados PostgreSQL e um sistema de cache Redis. A solução demonstra como gerenciar múltiplos serviços com dependências entre si.
 
 ## Arquitetura
 
@@ -33,12 +33,14 @@ Este desafio demonstra a orquestração de múltiplos serviços usando Docker Co
 
 ## Decisões Técnicas
 
-- **Flask**: Framework web leve e flexível para Python
-- **PostgreSQL**: Banco de dados robusto e confiável
-- **Redis**: Cache de alta performance em memória
-- **Health Checks**: Garantem que serviços estejam prontos antes de iniciar dependências
-- **Depends On**: Controla a ordem de inicialização dos serviços
-- **Rede Interna**: Isola os serviços em uma rede privada
+Para esta arquitetura, escolhi as seguintes tecnologias e abordagens:
+
+- **Flask**: Escolhi Flask por ser um framework web leve e simples de usar, ideal para criar APIs REST rapidamente. É perfeito para este tipo de aplicação onde não precisamos de todas as funcionalidades de frameworks mais pesados.
+- **PostgreSQL**: Utilizei PostgreSQL como banco de dados por ser robusto, confiável e amplamente utilizado em produção. A versão 15 Alpine mantém o tamanho da imagem pequeno.
+- **Redis**: Implementei Redis como cache para melhorar a performance das consultas. Redis é extremamente rápido por armazenar dados em memória e é amplamente usado para este propósito.
+- **Health Checks**: Configurei health checks em cada serviço para garantir que eles estejam realmente prontos antes que outros serviços dependentes tentem se conectar. Isso evita erros de conexão durante a inicialização.
+- **Depends On com condições**: Usei `depends_on` com `condition: service_healthy` para controlar a ordem de inicialização. Isso garante que o serviço web só inicie após o banco e cache estarem saudáveis.
+- **Rede Interna**: Criei uma rede interna para isolar os serviços, permitindo comunicação entre eles sem expor portas desnecessárias ao host.
 
 ## Funcionamento
 
@@ -377,13 +379,6 @@ docker network prune -f
 
 ## Conclusão
 
-Este desafio demonstra como Docker Compose facilita a orquestração de múltiplos serviços interdependentes, gerenciando:
-- Ordem de inicialização
-- Health checks
-- Rede interna
-- Volumes de persistência
-- Variáveis de ambiente
-
-A arquitetura resultante é escalável, isolada e fácil de gerenciar.
+Este desafio me permitiu entender na prática como o Docker Compose facilita significativamente a orquestração de múltiplos serviços. A solução gerencia automaticamente a ordem de inicialização, health checks, rede interna, volumes de persistência e variáveis de ambiente, resultando em uma arquitetura escalável, isolada e fácil de gerenciar. A implementação do cache com Redis também demonstrou como melhorar a performance de aplicações com padrões simples e eficazes.
 
 

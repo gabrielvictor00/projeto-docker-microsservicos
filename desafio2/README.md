@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este desafio demonstra a persistência de dados usando volumes Docker. Um container PostgreSQL armazena dados em um volume nomeado, permitindo que as informações sejam mantidas mesmo após a remoção do container.
+Este desafio implementa um sistema de persistência de dados usando volumes Docker. A solução utiliza um container PostgreSQL que armazena seus dados em um volume nomeado, garantindo que as informações sejam preservadas mesmo quando o container é removido e recriado.
 
 ## Arquitetura
 
@@ -37,10 +37,12 @@ Este desafio demonstra a persistência de dados usando volumes Docker. Um contai
 
 ## Decisões Técnicas
 
-- **PostgreSQL 15 Alpine**: Versão leve e estável do PostgreSQL
-- **Volume Nomeado**: Permite persistência e fácil gerenciamento
-- **Docker Compose**: Facilita o gerenciamento do volume e container
-- **Script de Inicialização**: `init.sql` cria tabelas e dados iniciais
+As escolhas técnicas para este desafio foram:
+
+- **PostgreSQL 15 Alpine**: Escolhi esta versão por ser estável e leve. A imagem Alpine reduz o tamanho da imagem em comparação com a versão padrão, mantendo todas as funcionalidades necessárias.
+- **Volume Nomeado**: Optei por usar um volume nomeado ao invés de bind mount porque volumes são completamente gerenciados pelo Docker, oferecem melhor portabilidade e são mais adequados para ambientes de produção. O volume persiste independentemente do ciclo de vida do container.
+- **Docker Compose**: Usei Docker Compose para facilitar o gerenciamento do volume e do container, além de permitir a criação automática do volume na primeira execução.
+- **Script de Inicialização**: Implementei um script `init.sql` que é executado automaticamente na primeira inicialização do banco, criando as tabelas e inserindo dados iniciais para demonstração.
 
 ## Funcionamento
 
@@ -216,25 +218,30 @@ desafio2/
 
 ### Dockerfile
 
-Cria uma imagem baseada no PostgreSQL 15 Alpine, define variáveis de ambiente e copia o script de inicialização.
+O Dockerfile estende a imagem oficial `postgres:15-alpine` e define as variáveis de ambiente necessárias para configurar o banco de dados (nome do banco, usuário e senha). O arquivo `init.sql` é copiado para o diretório `/docker-entrypoint-initdb.d/`, que é um diretório especial do PostgreSQL. Qualquer script SQL neste diretório é executado automaticamente na primeira inicialização do banco, antes do serviço ficar disponível.
 
 ### init.sql
 
-Script executado automaticamente na primeira inicialização do banco. Cria as tabelas `usuarios` e `produtos` e insere dados iniciais.
+Este script SQL é executado automaticamente quando o container é criado pela primeira vez. Ele cria duas tabelas:
+- **usuarios**: Armazena informações de usuários com campos id, nome, email e data_criacao
+- **produtos**: Armazena informações de produtos com campos id, nome, preco e estoque
+
+O script também insere dados iniciais em ambas as tabelas para demonstração. Esses dados são criados apenas na primeira inicialização, mas ficam persistidos no volume.
 
 ### docker-compose.yml
 
-Define:
-- **Serviço postgres**: Container do banco de dados com volume montado
-- **Serviço reader**: Container opcional para ler dados
-- **Volume postgres_data**: Volume nomeado para persistência
+O arquivo define:
+- **Serviço postgres**: Container do PostgreSQL com o volume `postgres_data` montado em `/var/lib/postgresql/data` (diretório padrão onde o PostgreSQL armazena dados). O volume é criado automaticamente na primeira execução.
+- **Serviço reader**: Container opcional que usa a mesma imagem do PostgreSQL para consultar os dados. Este serviço demonstra como um segundo container pode acessar os dados persistidos.
+- **Volume postgres_data**: Volume nomeado que persiste os dados do banco. Este volume permanece mesmo quando o container é removido.
 
 ### Volume vs Bind Mount
 
-- **Volume**: Gerenciado pelo Docker, melhor para produção
-- **Bind Mount**: Mapeia diretório do host, útil para desenvolvimento
+Existem duas formas principais de persistir dados no Docker:
+- **Volume**: Gerenciado completamente pelo Docker, armazenado em um local gerenciado pelo sistema Docker. É a melhor opção para produção pois oferece melhor portabilidade e performance.
+- **Bind Mount**: Mapeia diretamente um diretório do sistema host para o container. Útil para desenvolvimento, mas menos portável.
 
-Neste desafio usamos **volume nomeado** para garantir portabilidade e melhor gerenciamento.
+Para este desafio, escolhi usar um **volume nomeado** porque oferece melhor portabilidade (funciona em qualquer sistema), é gerenciado pelo Docker, e os dados ficam isolados do sistema de arquivos do host.
 
 ## Validação da Persistência
 
@@ -279,6 +286,6 @@ docker volume rm desafio2_postgres_data
 
 ## Conclusão
 
-Este desafio demonstra que volumes Docker são essenciais para persistência de dados em aplicações containerizadas. Os dados permanecem seguros mesmo quando containers são recriados, atualizados ou removidos.
+Através deste desafio, pude comprovar na prática a importância dos volumes Docker para persistência de dados. A solução demonstra que os dados permanecem seguros e acessíveis mesmo quando containers são recriados, atualizados ou removidos, o que é fundamental para aplicações em produção.
 
 

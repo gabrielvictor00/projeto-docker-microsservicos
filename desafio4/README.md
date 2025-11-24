@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este desafio implementa dois microsserviços independentes que se comunicam via HTTP. O **Users Service** fornece uma lista de usuários, e o **Aggregator Service** consome esse serviço para exibir informações combinadas e enriquecidas.
+Este desafio implementa uma arquitetura de microsserviços com dois serviços independentes que se comunicam via HTTP. O **Users Service** fornece dados de usuários através de uma API REST, enquanto o **Aggregator Service** consome essas informações e as enriquece com cálculos e formatações adicionais.
 
 ## Arquitetura
 
@@ -44,11 +44,13 @@ Este desafio implementa dois microsserviços independentes que se comunicam via 
 
 ## Decisões Técnicas
 
-- **Flask**: Framework web leve para ambos os serviços
-- **Python 3.11 Alpine**: Base mínima e eficiente
-- **Requests**: Biblioteca para comunicação HTTP entre serviços
-- **Dockerfiles Separados**: Cada serviço tem seu próprio Dockerfile para isolamento
-- **Rede Docker**: Comunicação via rede interna usando nomes de serviço
+As escolhas técnicas para esta implementação foram:
+
+- **Flask**: Utilizei Flask para ambos os serviços por ser simples e adequado para criar APIs REST. Permite implementar endpoints rapidamente sem complexidade desnecessária.
+- **Python 3.11 Alpine**: Escolhi Python 3.11 com base Alpine para manter as imagens pequenas e eficientes. Python é ideal para este tipo de aplicação onde precisamos processar dados e fazer requisições HTTP.
+- **Requests**: Usei a biblioteca `requests` para fazer as chamadas HTTP entre serviços. É a biblioteca mais popular e confiável para este propósito em Python, com uma API simples e intuitiva.
+- **Dockerfiles Separados**: Cada serviço possui seu próprio Dockerfile para garantir isolamento completo. Isso permite que cada serviço tenha suas próprias dependências e seja construído independentemente, facilitando manutenção e escalabilidade.
+- **Rede Docker**: Implementei comunicação via rede Docker interna, onde os serviços se encontram usando seus nomes (definidos no docker-compose.yml). Isso elimina a necessidade de conhecer IPs e facilita a descoberta de serviços.
 
 ## Funcionamento
 
@@ -273,17 +275,27 @@ desafio4/
 
 ### Users Service (app.py)
 
-- Armazena lista de usuários em memória (poderia ser banco de dados)
-- Expõe endpoints REST para acesso aos dados
-- Retorna JSON com informações dos usuários
-- Implementa health check endpoint
+O Users Service é uma aplicação Flask simples que mantém uma lista de usuários em memória (em uma variável `USERS`). Na prática, isso poderia ser substituído por um banco de dados, mas para este desafio, manter em memória é suficiente para demonstrar a comunicação entre serviços.
+
+A aplicação expõe três endpoints principais:
+- `GET /`: Retorna informações sobre o serviço e endpoints disponíveis
+- `GET /users`: Retorna a lista completa de usuários em formato JSON
+- `GET /users/<id>`: Retorna os detalhes de um usuário específico
+- `GET /health`: Endpoint de health check que retorna o status do serviço
+
+Cada usuário possui campos como id, nome, email, data de ativação e status. O serviço retorna os dados em formato JSON, que é facilmente consumível por outros serviços.
 
 ### Aggregator Service (app.py)
 
-- Faz requisições HTTP para o Users Service usando a biblioteca `requests`
-- Calcula dias ativos baseado na data `ativo_desde`
-- Gera mensagens combinadas para cada usuário
-- Trata erros de comunicação (retorna 503 se Users Service estiver offline)
+O Aggregator Service consome o Users Service e enriquece os dados. A função principal é `get_users_summary()`, que:
+
+1. Faz uma requisição HTTP GET para `http://users-service:8001/users` usando a biblioteca `requests`
+2. Processa a resposta JSON recebida
+3. Para cada usuário, calcula quantos dias ele está ativo usando a função `calculate_days_active()`, que compara a data `ativo_desde` com a data atual
+4. Gera uma mensagem combinada para cada usuário no formato "Usuário X está ativo desde Y (Z dias ativo)"
+5. Retorna um JSON com o resumo enriquecido
+
+O serviço também implementa tratamento de erros robusto: se o Users Service estiver offline ou não responder, o Aggregator retorna um erro HTTP 503 (Service Unavailable) com uma mensagem descritiva. O endpoint `/health` verifica a conectividade com o Users Service e reporta seu status.
 
 ### Dockerfiles Separados
 
@@ -411,13 +423,6 @@ docker network prune -f
 
 ## Conclusão
 
-Este desafio demonstra a arquitetura de microsserviços independentes, onde:
-- Cada serviço tem responsabilidade única
-- Serviços se comunicam via HTTP/REST
-- Isolamento através de containers separados
-- Comunicação via rede Docker interna
-- Fácil escalabilidade e manutenção
-
-A implementação mostra como microsserviços podem trabalhar juntos mantendo independência e desacoplamento.
+Através deste desafio, pude implementar e entender na prática os conceitos fundamentais de arquitetura de microsserviços. A solução demonstra como serviços independentes podem trabalhar juntos mantendo desacoplamento e responsabilidades bem definidas. Cada serviço tem sua responsabilidade única, se comunicam via HTTP/REST, estão isolados em containers separados e se descobrem através da rede Docker interna. Esta arquitetura facilita escalabilidade e manutenção, permitindo que cada serviço evolua independentemente.
 
 

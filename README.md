@@ -1,6 +1,6 @@
 # Projeto Docker e Microsserviços
 
-Este repositório contém a implementação de 5 desafios relacionados a Docker e Arquitetura de Microsserviços.
+Este repositório contém a implementação de 5 desafios práticos sobre Docker e Arquitetura de Microsserviços, desenvolvidos como parte de uma avaliação acadêmica.
 
 ## Estrutura do Projeto
 
@@ -52,37 +52,7 @@ Arquitetura completa com API Gateway centralizando acesso a microsserviços.
 
 ## Execução Rápida
 
-### Validação Automática
-
-Para testar todos os desafios de uma vez, execute:
-
-```powershell
-.\validar-projeto.ps1
-```
-
-Este script valida todos os desafios automaticamente.
-
-### Testar Desafio Individual
-
-Para testar um desafio específico:
-
-```powershell
-.\testar-desafio.ps1 -Numero 1
-```
-
-### Limpeza
-
-Para limpar todos os containers:
-
-```powershell
-.\limpar-tudo.ps1
-```
-
-### Execução Manual
-
 Cada desafio possui seu próprio diretório com instruções detalhadas. Acesse a pasta do desafio desejado e siga as instruções no README.md específico.
-
-📖 **Veja o [Guia Rápido](./GUIA-RAPIDO.md) para instruções detalhadas de execução.**
 
 ### Comandos Básicos para Todos os Desafios
 
@@ -167,7 +137,7 @@ docker rmi $(docker images -q)
 docker system prune -a --volumes
 ```
 
-## Autoria
+## Sobre o Projeto
 
-Este projeto foi desenvolvido como parte de uma avaliação sobre Docker e Microsserviços. Todas as implementações foram criadas com base em conceitos fundamentais de containerização e arquitetura de sistemas distribuídos.
+Este projeto foi desenvolvido como parte de uma avaliação acadêmica sobre Docker e Arquitetura de Microsserviços. Cada desafio foi implementado seguindo os requisitos especificados, com foco em demonstrar o funcionamento prático de containers, volumes, orquestração e comunicação entre serviços.
 
